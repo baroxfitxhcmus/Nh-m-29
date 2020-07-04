@@ -20,6 +20,7 @@ struct Snake
 	int length;
 	Status status;
 	bool stop = 0;
+	bool endgame = 0;
 };
 struct Food
 {
@@ -58,3 +59,6 @@ int highScore();
 void inputHighScore(int& highscore);
 // In ra hướng dẫn trò chơi
 void toGuide();
+
+string checkPlayerName();
+void saveGame(string playerPath,Snake snake, string name, int score);

@@ -5,6 +5,7 @@ using namespace std;
 
 int main()
 {
+	
 	srand(time(NULL));
 	Nocursortype();
 	// Chuỗi mssv của các thành viên trong nhóm
@@ -17,10 +18,12 @@ int main()
 	char choose;
 	
 	do {
+		
 		drawTemp();
 		drawOption(choose);
-		creatSnake(snake, food);
+		
 		if (choose == 'G' || choose == 'g') {// nếu người dùng chọn G thì sẽ in ra hướng dẫn trò chơi
+			
 			gotoXY(11, 17);
 			toGuide();
 			system("pause");
@@ -29,8 +32,20 @@ int main()
 		}
 		 else if (choose == 'T' || choose == 't')// Nếu người dùng chọn T thì sẽ in ra danh sách tên các người chơi đã từng chơi để tiếp tục chơi
 		{
-			gotoXY(31, 16);
-			cout << " High Score: " << highScore() << endl;
+			fstream listm;
+			listm.open("player.txt", ios::in);
+			int index = 7;
+			gotoXY(72, 6);
+			cout << "<--List player-->";
+			while (!listm.eof()) {
+				char temp[30];
+				listm.getline(temp, 30);
+				gotoXY(72, index);
+				cout <<temp;
+				index++;
+			}
+			listm.close();
+			
 			cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n" << endl;
 			system("pause");
 			system("cls");
@@ -38,17 +53,21 @@ int main()
 		}
 		 else if (choose == 'N' || choose == 'n')// Nếu người dùng chọn N thì sẽ tạo game mới
 		 {
+			
 			int countFood = 0;
-			string player;
-			gotoXY(20, 15);
-			cin.ignore();
-			cout << "Your name: ";
-			getline(cin,player);
-			string playerPath = player + ".txt";
-			fstream fplayer;
-			fplayer.open(playerPath, ios::out);
+			fstream listx;
+			listx.open("player.txt", ios::out);
+			ofstream listm;
+			listm.open("player.txt", ios::app);
+
+			string player = checkPlayerName();
+			listm << player;
+			listm.close();
+			string playerPath = (string)player + ".txt";
+			creatSnake(snake, food);
 			 while (1)
 			 {
+				 
 				 displaySnake(snake, food, score, highscore,list);
 				 move_control(snake);
 				 check = hanling(snake, food, speed, score,countFood);
@@ -57,20 +76,21 @@ int main()
 				 {
 					 drawGameOver(score);
 					 check = 10;
+					 snake.endgame = 1;
 					 break;
 
 				 }
 				 if (check == 2) {
 
 					 int mn;
-					 gotoXY(75, 14);
-					 cout << "Ban co muon tiep tuc?" << endl;
-					 gotoXY(75, 15);
-					 cout << "1: Co" << endl;
-					 gotoXY(75, 16);
-					 cout << "2 : Khong" << endl;
-					 gotoXY(75, 17);
-					 cout << "Lua chon : ";
+					 gotoXY(72, 15);
+					 cout << "Continue?" << endl;
+					 gotoXY(72, 16);
+					 cout << "1: Yes" << endl;
+					 gotoXY(72, 17);
+					 cout << "2: Save and quit" << endl;
+					 gotoXY(72, 18);
+					 cout << "Choose: ";
 					 cin >> mn;
 					 if (mn == 2) {
 						 gotoXY(30, 14);
@@ -78,6 +98,7 @@ int main()
 						 gotoXY(30, 15);
 						 cout << "Score: " << score << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
 						 check = 10;
+						 saveGame(playerPath, snake, player, score);
 						 system("pause");
 						 break;
 					 }
@@ -85,7 +106,7 @@ int main()
 						 snake.stop = 0;
 					 }
 				 }
-				 if (check == 10) break;
+				
 
 				 // Xử lí vẽ cổng và cho rắn vào cổng
 
@@ -100,20 +121,21 @@ int main()
 						 if (check == 1)
 						 {
 							 drawGameOver(score);
+							 snake.endgame = 1;
 							 check = 10;
 						 }
 						 if (check == 10) break;
 						 if (check == 2) {
 
 							 int mn;
-							 gotoXY(75, 14);
-							 cout << "Ban co muon tiep tuc?" << endl;
-							 gotoXY(75, 15);
-							 cout << "1: Co" << endl;
-							 gotoXY(75, 16);
-							 cout << "2 : Khong" << endl;
-							 gotoXY(75, 17);
-							 cout << "Lua chon : ";
+							 gotoXY(72, 15);
+							 cout << "Continue?" << endl;
+							 gotoXY(72, 16);
+							 cout << "1: Yes" << endl;
+							 gotoXY(72, 17);
+							 cout << "2: Save and quit" << endl;
+							 gotoXY(72, 18);
+							 cout << "Choose: ";
 							 cin >> mn;
 							 if (mn == 2) {
 								 gotoXY(30, 14);
@@ -121,6 +143,7 @@ int main()
 								 gotoXY(30, 15);
 								 cout << "Score: " << score << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
 								 check = 10;
+								 saveGame(playerPath, snake, player, score);
 								 system("pause");
 								 break;
 							 }
@@ -137,9 +160,16 @@ int main()
 
 				 }
 				 Sleep(speed);
+				 if (check == 10) break;
 			 }
-			 fplayer << player <<"\n"<< score;
-			 fplayer.close();
+			 if (snake.endgame == 1) {
+				 fstream fplayer;
+				 fplayer.open(playerPath, ios::out);
+				 fplayer << player << "\n" << score;
+				 fplayer << "\n1";
+				 fplayer.close();
+			 }
+			
 			 score = 0;
 			 speed = 200;
 			 inputHighScore(highscore);

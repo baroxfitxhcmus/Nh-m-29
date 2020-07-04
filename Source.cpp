@@ -13,7 +13,7 @@ void creatSnake(Snake& snake, Food& food)
 	snake.element[0].y = 6;
 	snake.length = 3;
 	snake.status = RIGHT;
-
+	snake.stop = 0;
 	food.f.x = 11 + rand() % 30;
 	food.f.y = 7 + rand() % 10;
 
@@ -57,16 +57,17 @@ void Nocursortype()
 }
 void drawTemp()
 {
-	TextColor(12);
-	gotoXY(20, 1);
+	
+	TextColor(14);
+	gotoXY(25, 1);
 	cout << "|----------------------------------------|" << endl;
-	gotoXY(20, 2);
+	gotoXY(25, 2);
 	cout << "|              GAME_SNAKE                |" << endl;
-	gotoXY(20, 3);
-	cout << "|     ________             _______       |" << endl;
-	gotoXY(20, 4);
+	gotoXY(25, 3);
+	cout << "|     ________   TEAM 29   _______       |" << endl;
+	gotoXY(25, 4);
 	cout << "|----------------------------------------|" << endl;
-	TextColor(8);
+	TextColor(7);
 	gotoXY(10, 5);
 	for (int i = 0; i < 60; i++)
 		cout << "#";
@@ -83,12 +84,26 @@ void drawTemp()
 		gotoXY(70, 5 + i);
 		cout << "#";
 	}
+	for (int i = 0; i < 20; i++) {
+		gotoXY(71 + i, 5);
+		cout << "#";
+	}
+	for (int i = 0; i < 15; i++)
+	{
+		gotoXY(90, 5 + i);
+		cout << "#";
+	}
+	for (int i = 0; i < 20; i++) {
+		gotoXY(71 + i, 20);
+		cout << "#";
+	}
 	cout << "\n\n\n\n\n\n\n\n\n";
 
 }
 
 void drawOption(char& choose)
 {
+	
 	gotoXY(19, 7);
 	cout << " _______________________________________" << endl;
 	gotoXY(19, 8);
@@ -105,12 +120,13 @@ void drawOption(char& choose)
 	cout << "|--- Press key Q: Quit Game ----        |" << endl;
 	gotoXY(19, 14);
 	cout << "|_______________________________________|" << endl;
-	gotoXY(19, 16);
+	gotoXY(19, 15);
 	cout << "---------> Choose: ";
 	cin >> choose;
 }
 void drawGameOver(int score)
 {
+	
 	gotoXY(23, 9);
 	cout << " _________________________________ " << endl;
 	gotoXY(23, 10);
@@ -134,21 +150,33 @@ coordinates createGate()
 }
 void displaySnake(Snake snake, Food food, int score, int& highscore,string list)
 {
+
+		
 	clrscr();
 	drawTemp();
 
 	if (score > highscore)
 		highscore = score;
-	gotoXY(75, 9);
-	cout << "HIGHSCORE: " << highscore << endl;
-	gotoXY(75, 10);
-	cout << "SCORE: " << score;
 	TextColor(14);
+	gotoXY(72, 7);
+	cout << "HIGHSCORE: " << highscore << endl;
+	gotoXY(72, 8);
+	cout << "SCORE: " << score;
+	gotoXY(72, 9);
+	cout << "W: move up";
+	gotoXY(72, 10);
+	cout << "S: move down";
+	gotoXY(72, 11);
+	cout << "A: move left";
+	gotoXY(72, 12);
+	cout << "D: move right";
+	gotoXY(72, 13);
+	cout << "P: Pause game";
 	gotoXY(food.f.x, food.f.y);
 	putchar(2);
-	TextColor(9);
+	TextColor(15);
 	gotoXY(snake.element[0].x, snake.element[0].y);
-	putchar('0');
+	putchar(3);
 	for (int i = 1; i < snake.length; i++)
 	{
 		gotoXY(snake.element[i].x, snake.element[i].y);
@@ -157,18 +185,29 @@ void displaySnake(Snake snake, Food food, int score, int& highscore,string list)
 }
 void displaySnake_Gate(Snake snake, coordinates pos, int score, int& highscore)
 {
+	
 	clrscr();
 	drawTemp();
 
 	if (score > highscore)
 		highscore = score;
-	gotoXY(75, 9);
-	cout << "HIGHSCORE: " << highscore << endl;
-	gotoXY(75, 10);
-	cout << "SCORE: " << score;
 	TextColor(14);
-	drawGate(pos);
-	TextColor(9);
+	gotoXY(72, 7);
+	cout << "HIGHSCORE: " << highscore << endl;
+	gotoXY(72, 8);
+	cout << "SCORE: " << score;
+	gotoXY(72, 9);
+	cout << "W: move up";
+	gotoXY(72, 10);
+	cout << "S: move down";
+	gotoXY(72, 11);
+	cout << "A: move left";
+	gotoXY(72, 12);
+	cout << "D: move right";
+	gotoXY(72, 13);
+	cout << "P: Pause game";
+	TextColor(14);
+	
 	gotoXY(snake.element[0].x, snake.element[0].y);
 	putchar('0');
 	for (int i = 1; i < snake.length; i++)
@@ -176,9 +215,12 @@ void displaySnake_Gate(Snake snake, coordinates pos, int score, int& highscore)
 		gotoXY(snake.element[i].x, snake.element[i].y);
 		cout << "o";
 	}
+	drawGate(pos);
 }
 void drawGate(coordinates pos)
 {
+	
+
 	gotoXY(pos.x, pos.y - 1);
 	cout << " #### " << endl;
 	gotoXY(pos.x, pos.y);
@@ -296,8 +338,58 @@ void inputHighScore(int& highscore)
 }
 void toGuide()
 {
-	cout << " Move up: W - Move down: S - Move left: A - Move right: D" << endl;
-	gotoXY(11, 18);
-	cout << "                     Pause: P                             " << endl;
+	gotoXY(72, 10);
+	cout << "W: MOVE UP";
+	gotoXY(72, 11);
+	cout << "S: MOVE DOWN";
+	gotoXY(72, 12);
+	cout << "A: MOVE LEFT";
+	gotoXY(72, 13);
+	cout << "D: MOVE RIGHT";
+	gotoXY(72, 14);
+	cout << "P: PAUSE GAME";
+
 	cout << "\n\n\n\n\n\n\n\n\n\n\n";
+}
+
+string checkPlayerName()
+{
+	int checkout = 0;
+	char player[30];
+	fstream listx;
+	listx.open("player.txt", ios::in);
+	char temp[30];
+	int index = 16;
+	do {
+		gotoXY(20, index);
+		if (checkout == 0) cin.ignore();
+		checkout = 0;
+		cout << "Your name: ";
+		cin.getline(player, 30);
+		while (!listx.eof()) {
+			listx.getline(temp, 30);
+			if ((string)player == (string)temp)
+			{
+				gotoXY(20, 17);
+				cout << "Player name already exists!";
+				checkout = 1;
+				index += 2;
+			}
+			if (checkout == 1) break;
+		}
+	} while (checkout != 0);
+	listx.close();
+	return (string)player;
+}
+
+void saveGame(string playerPath, Snake snake,string name,int score)
+{
+	fstream player;
+	player.open(playerPath, ios::out);
+	player << name << "\n" << score << "\n0\n";
+	player << snake.status << "\n" << snake.length << endl;
+	for (int i = 0; i < snake.length; i++) {
+		player << snake.element[i].x << " " << snake.element[i].y<< endl;
+	}
+	player.close();
 }
