@@ -1,4 +1,4 @@
-#include "Header.h"
+﻿#include "Header.h"
 
 
 
@@ -382,14 +382,326 @@ string checkPlayerName()
 	return (string)player;
 }
 
-void saveGame(string playerPath, Snake snake,string name,int score)
+void saveGame(string playerPath, Snake snake,string name,int score,Food food,int speed)
 {
 	fstream player;
 	player.open(playerPath, ios::out);
 	player << name << "\n" << score << "\n0\n";
-	player << snake.status << "\n" << snake.length << endl;
+	player << food.f.x << " " << food.f.y << endl;
+	if (snake.status == UP) player << "0" << endl;
+	if (snake.status == DOWN) player << "1" << endl;
+	if (snake.status == LEFT) player << "2" << endl;
+	if (snake.status == RIGHT) player << "3" << endl;
+	player<<snake.length << endl;
 	for (int i = 0; i < snake.length; i++) {
 		player << snake.element[i].x << " " << snake.element[i].y<< endl;
 	}
+	player << speed;
 	player.close();
+}
+
+void loadSavedGame(Snake &snake,char* &name, int &score,Food &food,int& speed)
+{
+	gotoXY(20, 16);
+	cout << "Your name: ";
+	cin.ignore();
+	cin.getline(name, 30);
+	string player = (string)name + ".txt";
+
+	fstream fplayerx;
+	fplayerx.open("player.txt", ios::out);
+	int checkout = 0;
+	while (!fplayerx.eof()) {
+		char nameplayer[30];
+		fplayerx.getline(nameplayer, 30);
+		if ((string)nameplayer == (string)name) {
+			checkout = 1;
+			break;
+		}
+	}
+	if (checkout == 0) {
+		gotoXY(20, 17);
+		cout << "Playername does not exist!";
+		return;
+	}
+	fstream fplayer;
+	fplayer.open(player, ios::out);
+	fplayer.getline(name, 30);
+	fplayer >> score;
+	fplayer >> snake.endgame;
+	fplayer << food.f.x << food.f.y;
+	int x, y;
+	fplayer >> y;
+	if (y == 1) {
+		gotoXY(20, 17);
+		cout << "Game of this player is over!";
+		return;
+	}
+	fplayer >> x;
+	if (x == 0) snake.status == UP;
+	if (x == 1) snake.status == DOWN;
+	if (x == 2) snake.status == LEFT;
+	if (x == 3) snake.status == RIGHT;
+	fplayer >> snake.length;
+
+	for (int i = 0; i < snake.length; i++)
+	{
+		fplayer >> snake.element[i].x >> snake.element[i].y;
+	}
+	fplayer >> speed;
+	fplayer.close();
+	
+}
+
+void playNewGame(Snake snake, Food food, int score, int highscore, string list, int countFood,int speed,int check)
+{
+	fstream listx;
+	ofstream listm;
+	listm.open("player.txt", ios::app);
+
+	string player = checkPlayerName();
+	listm << "\n"<<player;
+	listm.close();
+	string playerPath = (string)player + ".txt";
+	while (1)
+	{
+
+		displaySnake(snake, food, score, highscore, list);
+		move_control(snake);
+		check = hanling(snake, food, speed, score, countFood);
+
+		if (check == 1)
+		{
+			drawGameOver(score);
+			check = 10;
+			snake.endgame = 1;
+
+		}
+		if (check == 2) {
+
+			int mn;
+			gotoXY(72, 15);
+			cout << "Continue?" << endl;
+			gotoXY(72, 16);
+			cout << "1: Yes" << endl;
+			gotoXY(72, 17);
+			cout << "2: Save and quit" << endl;
+			gotoXY(72, 18);
+			cout << "Choose: ";
+			cin >> mn;
+			if (mn == 2) {
+				gotoXY(30, 14);
+				cout << "Player: " << player << endl;
+				gotoXY(30, 15);
+				cout << "Score: " << score << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+				check = 10;
+				saveGame(playerPath, snake, player, score,food,speed);
+				system("pause");
+				break;
+			}
+			else {
+				snake.stop = 0;
+			}
+		}
+
+
+		// Xử lí vẽ cổng và cho rắn vào cổng
+
+		if (countFood % 4 == 0 && countFood != 0)// Khi ăn được mỗi 4 food thì sẽ in ra cổng để cho snake đi qua
+		{
+			coordinates pos = createGate();
+
+			while (1) {
+				displaySnake_Gate(snake, pos, score, highscore);
+				move_control(snake);
+				check = hanling_gate(snake, pos, speed, score, countFood);
+				if (check == 1)
+				{
+					drawGameOver(score);
+					snake.endgame = 1;
+					check = 10;
+				}
+				if (check == 10) break;
+				if (check == 2) {
+
+					int mn;
+					gotoXY(72, 15);
+					cout << "Continue?" << endl;
+					gotoXY(72, 16);
+					cout << "1: Yes" << endl;
+					gotoXY(72, 17);
+					cout << "2: Save and quit" << endl;
+					gotoXY(72, 18);
+					cout << "Choose: ";
+					cin >> mn;
+					if (mn == 2) {
+						gotoXY(30, 14);
+						cout << "Player: " << player << endl;
+						gotoXY(30, 15);
+						cout << "Score: " << score << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+						check = 10;
+						saveGame(playerPath, snake, player, score,food,speed);
+						system("pause");
+						break;
+					}
+					else {
+						snake.stop = 0;
+					}
+
+				}
+				if (check == 0) break;
+				Sleep(speed);
+
+			}
+
+
+		}
+		Sleep(speed);
+		if (check == 10) break;
+	}
+	if (snake.endgame == 1) {
+		fstream fplayer;
+		fplayer.open(playerPath, ios::out);
+		fplayer << player << "\n" << score;
+		fplayer << "\n1";
+		fplayer.close();
+	}
+
+	score = 0;
+	speed = 200;
+	inputHighScore(highscore);
+
+}
+
+void printListPlayer()
+{
+	fstream listm;
+	listm.open("player.txt", ios::in);
+	int index = 7;
+	gotoXY(72, 6);
+	cout << "<--List player-->";
+	while (!listm.eof()) {
+		char temp[30];
+		listm.getline(temp, 30);
+		gotoXY(72, index);
+		cout << temp;
+		index++;
+	}
+	listm.close();
+}
+
+void playSavedGame(Snake snake, Food food, int score, int highscore, string list, int countFood, int speed, int check,char* name)
+{
+	string playerPath = string(name) + ".txt";
+
+	while (1)
+	{
+
+		displaySnake(snake, food, score, highscore, list);
+		move_control(snake);
+		check = hanling(snake, food, speed, score, countFood);
+
+		if (check == 1)
+		{
+			drawGameOver(score);
+			check = 10;
+			snake.endgame = 1;
+			break;
+
+		}
+		if (check == 2) {
+
+			int mn;
+			gotoXY(72, 15);
+			cout << "Continue?" << endl;
+			gotoXY(72, 16);
+			cout << "1: Yes" << endl;
+			gotoXY(72, 17);
+			cout << "2: Save and quit" << endl;
+			gotoXY(72, 18);
+			cout << "Choose: ";
+			cin >> mn;
+			if (mn == 2) {
+				gotoXY(30, 14);
+				cout << "Player: " << name << endl;
+				gotoXY(30, 15);
+				cout << "Score: " << score << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+				check = 10;
+				saveGame(playerPath, snake, name, score, food,speed);
+				system("pause");
+				break;
+			}
+			else {
+				snake.stop = 0;
+			}
+		}
+
+
+		// Xử lí vẽ cổng và cho rắn vào cổng
+
+		if (countFood % 4 == 0 && countFood != 0)// Khi ăn được mỗi 4 food thì sẽ in ra cổng để cho snake đi qua
+		{
+			coordinates pos = createGate();
+
+			while (1) {
+				displaySnake_Gate(snake, pos, score, highscore);
+				move_control(snake);
+				check = hanling_gate(snake, pos, speed, score, countFood);
+				if (check == 1)
+				{
+					drawGameOver(score);
+					snake.endgame = 1;
+					check = 10;
+				}
+				if (check == 10) break;
+				if (check == 2) {
+
+					int mn;
+					gotoXY(72, 15);
+					cout << "Continue?" << endl;
+					gotoXY(72, 16);
+					cout << "1: Yes" << endl;
+					gotoXY(72, 17);
+					cout << "2: Save and quit" << endl;
+					gotoXY(72, 18);
+					cout << "Choose: ";
+					cin >> mn;
+					if (mn == 2) {
+						gotoXY(30, 14);
+						cout << "Player: " << name << endl;
+						gotoXY(30, 15);
+						cout << "Score: " << score << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+						check = 10;
+						saveGame(playerPath, snake, name, score, food,speed);
+						system("pause");
+						break;
+					}
+					else {
+						snake.stop = 0;
+					}
+
+				}
+				if (check == 0) break;
+				Sleep(speed);
+
+			}
+
+
+		}
+		if (check == 10) break;
+		Sleep(speed);
+		
+	}
+	if (snake.endgame == 1) {
+		fstream fplayer;
+		fplayer.open(playerPath, ios::out);
+		fplayer << name << "\n" << score;
+		fplayer << "\n1";
+		fplayer.close();
+	}
+
+	score = 0;
+	speed = 200;
+	inputHighScore(highscore);
+
 }

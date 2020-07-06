@@ -61,4 +61,9 @@ void inputHighScore(int& highscore);
 void toGuide();
 
 string checkPlayerName();
-void saveGame(string playerPath,Snake snake, string name, int score);
+void saveGame(string playerPath,Snake snake, string name, int score,Food food,int speed);
+void loadSavedGame( Snake &snake,char *& name,int &score, Food& food,int &speed);
+void playNewGame(Snake snake, Food food, int score, int highscore, string list, int countFood,int speed,int check);
+
+void printListPlayer();
+void playSavedGame(Snake snake, Food food, int score, int highscore, string list, int countFood, int speed, int check,char*name);
